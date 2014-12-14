@@ -1,3 +1,5 @@
+import ddf.minim.*;
+
 int mode = 0;
 
 //MODE:
@@ -10,8 +12,11 @@ PImage img;
 PImage originalImg;
 String imgFileName = "PIA15635";
 String fileType = "jpg";
+Minim minim;
+AudioInput in;
 
-int blackValue = -16000000 + 0xff000000;
+int originalBlackValue = -18000000 + 0xff000000; 
+int blackValue = 0;
 int brigthnessValue = 60;
 int whiteValue = -13000000;
 
@@ -22,10 +27,19 @@ void setup() {
   originalImg = loadImage(imgFileName+"."+fileType);
   size(originalImg.width, originalImg.height);
   img = createImage(originalImg.width, originalImg.height, ARGB);
+  minim = new Minim(this);  
+  in = minim.getLineIn();
 }
 
-
 void draw() {
+  float audioValue = 0;
+  for(int i = 0; i < in.bufferSize() - 1; i++)
+  {
+    audioValue += in.left.get(i);
+  }
+  audioValue /= in.bufferSize();
+  blackValue = originalBlackValue + (int)(sqrt(audioValue) * 40000000);
+  
   img.copy(originalImg, 0, 0, originalImg.width, originalImg.height, 0, 0, originalImg.width, originalImg.height);
 
   column = 0;
@@ -46,7 +60,6 @@ void draw() {
   img.updatePixels();
   
   image(img, 0, 0);
-  this.blackValue += 100000;
 }
 
 
