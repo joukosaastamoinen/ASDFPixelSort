@@ -1,4 +1,4 @@
-int mode = 1;
+int mode = 0;
 
 //MODE:
 //0 -> black
@@ -7,49 +7,46 @@ int mode = 1;
 //b(16777216)
 
 PImage img;
+PImage originalImg;
 String imgFileName = "PIA15635";
-String fileType = "png";
+String fileType = "jpg";
 
-int loops = 1;
-
-int blackValue = -16000000;
+int blackValue = -16000000 + 0xff000000;
 int brigthnessValue = 60;
 int whiteValue = -13000000;
 
 int row = 0;
 int column = 0;
 
-boolean saved = false;
-
 void setup() {
-  img = loadImage(imgFileName+"."+fileType);
-  size(img.width, img.height);
-  image(img, 0, 0);
+  originalImg = loadImage(imgFileName+"."+fileType);
+  size(originalImg.width, originalImg.height);
+  img = createImage(originalImg.width, originalImg.height, ARGB);
 }
 
 
 void draw() {
+  img.copy(originalImg, 0, 0, originalImg.width, originalImg.height, 0, 0, originalImg.width, originalImg.height);
+
+  column = 0;
+  row = 0;
+  
+  img.loadPixels();
+
   while(column < width-1) {
-    img.loadPixels(); 
     sortColumn();
     column++;
-    img.updatePixels();
   }
-  
+
   while(row < height-1) {
-    img.loadPixels(); 
     sortRow();
     row++;
-    img.updatePixels();
   }
+
+  img.updatePixels();
   
-  image(img,0,0);
-  if(!saved && frameCount >= loops) {
-    saveFrame(imgFileName+"_"+mode+".png");
-    saved = true;
-    println("DONE"+frameCount);
-    System.exit(0);
-  }
+  image(img, 0, 0);
+  this.blackValue += 100000;
 }
 
 
@@ -121,7 +118,7 @@ void sortColumn() {
         break;
     }
     
-    if(y < 0) break;
+    if(y < 0) break;    
     
     int sortLength = yend-y;
     
